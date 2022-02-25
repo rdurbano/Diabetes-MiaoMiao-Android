@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using DiabetesOnWatch_v2.Model;
 using Plugin.BLE;
@@ -19,11 +20,18 @@ namespace DiabetesOnWatch_v2
         public event PropertyChangedEventHandler PropertyChanged;
         
         private static Guid GLUCOSE_SERVICE = Guid.Parse("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
-        private static Guid GLUCOSE_CHARACTERISTIC = Guid.Parse("6e400003-b5a3-f393-e0a9-e50e24dcca9e");
+        private static Guid GLUCOSE_CHARACTERISTIC_RECV = Guid.Parse("6E400002-B5A3-F393-E0A9-E50E24DCCA9E");
+        private static Guid GLUCOSE_CHARACTERISTIC_XMIT = Guid.Parse("6e400003-b5a3-f393-e0a9-e50e24dcca9e");
+        private static Guid GLUCOSE_CHARACTERISTIC_DESCRIPTOR_XMIT = Guid.Parse("00002902-0000-1000-8000-00805f9b34fb");
 
         private IAdapter _bleAdapter;
         private IService _serviceGlucose;
-        private ICharacteristic _characteristicGlucose;
+        private ICharacteristic _characteristicGlucoseRecv;
+        private ICharacteristic _characteristicGlucoseXmit;
+        private IDescriptor _characteristicDescriptorXmit;
+
+        public List<byte> dataMiaoMiao;
+        
         private BluetoothModel _bleModel;
         public BluetoothModel bleModel
         {
@@ -108,11 +116,18 @@ namespace DiabetesOnWatch_v2
 
                             
                             _serviceGlucose = (IService)await bleModel.deviceConnected.GetServiceAsync(GLUCOSE_SERVICE);
-                            _characteristicGlucose = (ICharacteristic) await _serviceGlucose.GetCharacteristicAsync(GLUCOSE_CHARACTERISTIC);
+                            _characteristicGlucoseRecv = (ICharacteristic)await _serviceGlucose.GetCharacteristicAsync(GLUCOSE_CHARACTERISTIC_RECV);
+                            _characteristicGlucoseXmit = (ICharacteristic) await _serviceGlucose.GetCharacteristicAsync(GLUCOSE_CHARACTERISTIC_XMIT);
+                            _characteristicDescriptorXmit = (IDescriptor)await _characteristicGlucoseXmit.GetDescriptorAsync(GLUCOSE_CHARACTERISTIC_DESCRIPTOR_XMIT);
+
+                            //_characteristicGlucoseRecv.ValueUpdated += _CharacteristicGlucose_ValueUpdated;
+                            _characteristicGlucoseXmit.ValueUpdated += _CharacteristicGlucose_ValueUpdated;
+                            _characteristicGlucoseXmit.StartUpdatesAsync();
 
 
-                            _characteristicGlucose.ValueUpdated += _CharacteristicGlucose_ValueUpdated;
-                            _characteristicGlucose.StartUpdatesAsync();
+                            byte[] dataRecv = { 0xf0 };
+                            Thread.Sleep(2000);
+                            await _characteristicGlucoseRecv.WriteAsync(dataRecv);
 
                             bleModel.bleStatus = "Device Connected";
 
@@ -121,14 +136,14 @@ namespace DiabetesOnWatch_v2
                         catch (Exception ex)
                         {
                             _Disconnect();
-                            throw ex;
+                            //throw ex;
+
                         }
                     });
                 }
                 return _ConnectDevice;
             }
         }
-
 
         private Command _DisconnectDevice;
         public Command DisconnectDevice
@@ -157,6 +172,24 @@ namespace DiabetesOnWatch_v2
             try
             {
                 var bytes = args.Characteristic.Value;
+                
+                if (bytes[0] == 0x28)
+                {
+                    dataMiaoMiao = new List<byte>();
+                    dataMiaoMiao.AddRange(bytes);
+                }
+                else
+                {
+                    if (bytes[0] != 0x28 && bytes[bytes.Length -1] != 0x29)
+                    {
+                        dataMiaoMiao.AddRange(bytes);
+                    }
+                    else
+                    {
+                        dataMiaoMiao.AddRange(bytes);
+                        Int32 teste = BitConverter.ToInt32(dataMiaoMiao.GetRange(27+32,1).ToArray(), 0);
+                    }
+                }
             }
             catch (Exception ex)
             {

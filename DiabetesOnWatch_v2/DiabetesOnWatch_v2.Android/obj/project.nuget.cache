@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "y6yOfufOKLtFmbi0lhmpC6dlmsfIi17Em4vA/qMWHR688dNIL8Q/qnRrvahXH0pfDmj/IPQjmIQw4rWKi8F3Bg==",
+  "dgSpecHash": "R6u2TKxNFPyhYpQv/AyDo4rk/t2k+FbKRcm2xKlrZp9FprVrk7vKWoqzGhW2cdZ+6fMwELbCfI3CxCL4XsnHCA==",
   "success": true,
-  "projectFilePath": "C:\\Users\\MVI_R\\Source\\Repos\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2.Android\\DiabetesOnWatch_v2.Android.csproj",
+  "projectFilePath": "C:\\Users\\MVI_R\\Source\\Repos\\Diabetes-MiaoMiao-Android\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2.Android\\DiabetesOnWatch_v2.Android.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\MVI_R\\.nuget\\packages\\plugin.ble\\2.1.2\\plugin.ble.2.1.2.nupkg.sha512",
     "C:\\Users\\MVI_R\\.nuget\\packages\\system.numerics.vectors\\4.5.0\\system.numerics.vectors.4.5.0.nupkg.sha512",

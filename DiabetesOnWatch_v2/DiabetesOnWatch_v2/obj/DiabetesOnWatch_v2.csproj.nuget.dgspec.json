@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\MVI_R\\Source\\Repos\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2.csproj": {}
+    "C:\\Users\\MVI_R\\Source\\Repos\\Diabetes-MiaoMiao-Android\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2.csproj": {}
   },
   "projects": {
-    "C:\\Users\\MVI_R\\Source\\Repos\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2.csproj": {
+    "C:\\Users\\MVI_R\\Source\\Repos\\Diabetes-MiaoMiao-Android\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\MVI_R\\Source\\Repos\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2.csproj",
+        "projectUniqueName": "C:\\Users\\MVI_R\\Source\\Repos\\Diabetes-MiaoMiao-Android\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2.csproj",
         "projectName": "DiabetesOnWatch_v2",
-        "projectPath": "C:\\Users\\MVI_R\\Source\\Repos\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2.csproj",
+        "projectPath": "C:\\Users\\MVI_R\\Source\\Repos\\Diabetes-MiaoMiao-Android\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2.csproj",
         "packagesPath": "C:\\Users\\MVI_R\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\MVI_R\\Source\\Repos\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2\\obj\\",
+        "outputPath": "C:\\Users\\MVI_R\\Source\\Repos\\Diabetes-MiaoMiao-Android\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -22,15 +22,15 @@
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
-          "netstandard2.0"
+          "netstandard2.1"
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "netstandard2.0": {
-            "targetAlias": "netstandard2.0",
+          "netstandard2.1": {
+            "targetAlias": "netstandard2.1",
             "projectReferences": {}
           }
         },
@@ -41,15 +41,9 @@
         }
       },
       "frameworks": {
-        "netstandard2.0": {
-          "targetAlias": "netstandard2.0",
+        "netstandard2.1": {
+          "targetAlias": "netstandard2.1",
           "dependencies": {
-            "NETStandard.Library": {
-              "suppressParent": "All",
-              "target": "Package",
-              "version": "[2.0.3, )",
-              "autoReferenced": true
-            },
             "Plugin.BLE": {
               "target": "Package",
               "version": "[2.1.2, )"
@@ -73,6 +67,11 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "frameworkReferences": {
+            "NETStandard.Library": {
+              "privateAssets": "all"
+            }
+          },
           "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.101\\RuntimeIdentifierGraph.json"
         }
       }
