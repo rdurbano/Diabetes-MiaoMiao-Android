@@ -9,6 +9,8 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="50" />
                 <RowDefinition Height="50" />
+                <RowDefinition Height="50" />
+                <RowDefinition Height="50" />
             </Grid.RowDefinitions>
 
             <Grid.ColumnDefinitions>
@@ -16,8 +18,12 @@
             </Grid.ColumnDefinitions>
             <Label Text="Status: " Grid.Row="0" Grid.Column="0" FontSize="Title" />
             <Label Text="{Binding bleModel.bleStatus}" Grid.Row="0" Grid.Column="1" FontSize="Small" />
-            <Label Text="Glucose: " Grid.Row="1" Grid.Column="0" FontSize="Title" />
-            <Label Text="0000" Grid.Row="1" Grid.Column="1" FontSize="Small"/>
+            <Label Text="Glucose H: " Grid.Row="1" Grid.Column="0" FontSize="Title" />
+            <Label Text="{Binding bleModel.glucoseLevelHistory}" Grid.Row="1" Grid.Column="1" FontSize="Small"/>
+            <Label Text="Glucose T: " Grid.Row="2" Grid.Column="0" FontSize="Title" />
+            <Label Text="{Binding bleModel.glucoseLevelTrend}" Grid.Row="2" Grid.Column="1" FontSize="Small"/>            
+            <Label Text="Battery: " Grid.Row="3" Grid.Column="0" FontSize="Title" />
+            <Label Text="{Binding bleModel.batteryMiaoMiao}" Grid.Row="3" Grid.Column="1" FontSize="Small"/>            
         </Grid>
     </StackLayout>
 </ContentPage>

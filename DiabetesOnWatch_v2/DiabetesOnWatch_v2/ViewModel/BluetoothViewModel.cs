@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -31,7 +32,9 @@ namespace DiabetesOnWatch_v2
         private IDescriptor _characteristicDescriptorXmit;
 
         public List<byte> dataMiaoMiao;
-        
+        public byte[] dataMiaoMiao_bytes;
+
+        byte[] _buffer;
         private BluetoothModel _bleModel;
         public BluetoothModel bleModel
         {
@@ -42,7 +45,7 @@ namespace DiabetesOnWatch_v2
         public BluetoothViewModel()
         {
             _bleAdapter = CrossBluetoothLE.Current.Adapter;
-            bleModel = new BluetoothModel() { bleStatus = "", devicesCount=0,servicesList = new ObservableCollection<IService>(), devicesList = new ObservableCollection<IDevice>()};
+            bleModel = new BluetoothModel() { bleStatus = "", devicesCount=0, devicesList = new ObservableCollection<IDevice>()};
 
             _bleAdapter.ScanMode = ScanMode.LowPower;
             _bleAdapter.ScanTimeout = 10000;
@@ -120,7 +123,6 @@ namespace DiabetesOnWatch_v2
                             _characteristicGlucoseXmit = (ICharacteristic) await _serviceGlucose.GetCharacteristicAsync(GLUCOSE_CHARACTERISTIC_XMIT);
                             _characteristicDescriptorXmit = (IDescriptor)await _characteristicGlucoseXmit.GetDescriptorAsync(GLUCOSE_CHARACTERISTIC_DESCRIPTOR_XMIT);
 
-                            //_characteristicGlucoseRecv.ValueUpdated += _CharacteristicGlucose_ValueUpdated;
                             _characteristicGlucoseXmit.ValueUpdated += _CharacteristicGlucose_ValueUpdated;
                             _characteristicGlucoseXmit.StartUpdatesAsync();
 
@@ -136,8 +138,6 @@ namespace DiabetesOnWatch_v2
                         catch (Exception ex)
                         {
                             _Disconnect();
-                            //throw ex;
-
                         }
                     });
                 }
@@ -169,25 +169,27 @@ namespace DiabetesOnWatch_v2
 
         private void _CharacteristicGlucose_ValueUpdated(object sender, CharacteristicUpdatedEventArgs args)
         {
+
             try
             {
                 var bytes = args.Characteristic.Value;
-                
+
                 if (bytes[0] == 0x28)
                 {
                     dataMiaoMiao = new List<byte>();
                     dataMiaoMiao.AddRange(bytes);
+
                 }
                 else
                 {
-                    if (bytes[0] != 0x28 && bytes[bytes.Length -1] != 0x29)
+                    if (bytes[0] != 0x28 && bytes[bytes.Length - 1] != 0x29)
                     {
                         dataMiaoMiao.AddRange(bytes);
                     }
                     else
                     {
                         dataMiaoMiao.AddRange(bytes);
-                        Int32 teste = BitConverter.ToInt32(dataMiaoMiao.GetRange(27+32,1).ToArray(), 0);
+                        _PackageMounted();
                     }
                 }
             }
@@ -196,6 +198,77 @@ namespace DiabetesOnWatch_v2
 
                 throw ex;
             }
+        }
+
+        private void _PackageMounted()
+        {
+            List<double> packetHistory = new List<double>();
+            List<double> packetTrend = new List<double>();
+
+
+            var packetLenght = StructConverter.Unpack(">h", dataMiaoMiao.GetRange(1, 2).ToArray())[0];
+            string sensorId = BitConverter.ToString(dataMiaoMiao.GetRange(3, 9).ToArray());
+            bleModel.batteryMiaoMiao = dataMiaoMiao[13];
+            var Firmeware = StructConverter.Unpack(">h", dataMiaoMiao.GetRange(14, 2).ToArray())[0];
+            var Hardware = StructConverter.Unpack(">h", dataMiaoMiao.GetRange(16, 2).ToArray())[0];
+            List<byte> payload = dataMiaoMiao.GetRange(18, 343);
+
+
+            int trendIndex = payload[26];
+            int historyIndex = payload[27];
+            int nhistory = 32;
+            int ntrend = 16;
+            var minutes = StructConverter.Unpack(">h", payload.GetRange(335, 2).ToArray())[0];
+
+
+            for (int imem = 0; imem < nhistory; imem++)
+            {
+                int ird = (historyIndex - imem - 1) % nhistory;
+                int bias = 142;
+                int low = bias + ird * 6;
+                int high = bias + (ird + 1) * 6;
+
+                byte[] entrydata = payload.GetRange(low, high - low).ToArray();
+                var entryle = StructConverter.Unpack("<HHH", entrydata);
+                foreach (var dtry in entryle)
+                {
+                    packetHistory.Add(Convert.ToInt32(dtry) / 8.5);
+                }
+            }
+
+            bleModel.glucoseLevelHistory = packetHistory.GetRange(packetHistory.Count - 3, 1).FirstOrDefault();
+
+            for (int imem = 0; imem < ntrend; imem++)
+            {
+                int ird = (trendIndex - imem - 1) % ntrend;
+                int bias = 46;
+                int low = bias + ird * 6;
+                int high = bias + (ird + 1) * 6;
+
+                byte[] entrydata = payload.GetRange(low, high - low).ToArray();
+                var entryle = StructConverter.Unpack("<HHH", entrydata);
+                foreach (var dtry in entryle)
+                {
+                    packetTrend.Add(Convert.ToInt32(dtry) / 8.5);
+                }
+            }
+            
+            bleModel.glucoseLevelTrend = packetTrend.GetRange(packetTrend.Count - 3, 1).FirstOrDefault();
+        }
+
+
+        static string Hex2Base64(string hexvalue)
+        {
+            if (hexvalue.Length % 2 != 0)
+                hexvalue = "0" + hexvalue;
+            int len = hexvalue.Length / 2;
+            byte[] bytes = new byte[len];
+            for (int i = 0; i < len; i++)
+            {
+                string byteString = hexvalue.Substring(2 * i, 2);
+                bytes[i] = Convert.ToByte(byteString, 16);
+            }
+            return Convert.ToBase64String(bytes);
         }
 
         bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
