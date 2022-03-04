@@ -15,9 +15,8 @@ namespace DiabetesOnWatch_v2.Model
 
         private string _bleStatus;
         private int  _devicesCount;
-        private double _glucoseLevelHistory;
-        private double _glucoseLevelTrend;
-        private int _batteryMiaoMiao;
+        private double _glucoseLevel;
+        private int _batteryDevice;
         private ObservableCollection<IDevice> _devicesList;
         private IDevice _deviceConnected;
 
@@ -46,23 +45,10 @@ namespace DiabetesOnWatch_v2.Model
             get { return _bleStatus; }
         }
 
-
-        public double glucoseLevelHistory
+        public int batteryDevice
         {
-            set { SetProperty(ref _glucoseLevelHistory, value); }
-            get { return _glucoseLevelHistory; }
-        }
-
-        public double glucoseLevelTrend
-        {
-            set { SetProperty(ref _glucoseLevelTrend, value); }
-            get { return _glucoseLevelTrend; }
-        }
-
-        public int batteryMiaoMiao
-        {
-            set { SetProperty(ref _batteryMiaoMiao, value); }
-            get { return _batteryMiaoMiao; }
+            set { SetProperty(ref _batteryDevice, value); }
+            get { return _batteryDevice; }
         }
 
         bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)

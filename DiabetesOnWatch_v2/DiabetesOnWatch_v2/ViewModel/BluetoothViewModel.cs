@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DiabetesOnWatch_v2.Model;
+using DiabetesOnWatch_v2.Utils;
 using Plugin.BLE;
 using Plugin.BLE.Abstractions.Contracts;
 using Plugin.BLE.Abstractions.EventArgs;
@@ -32,14 +33,23 @@ namespace DiabetesOnWatch_v2
         private IDescriptor _characteristicDescriptorXmit;
 
         public List<byte> dataMiaoMiao;
-        public byte[] dataMiaoMiao_bytes;
+        List<GlucoseData> historyList = new List<GlucoseData>();
+        List<GlucoseData> trendList = new List<GlucoseData>();
 
-        byte[] _buffer;
+        
         private BluetoothModel _bleModel;
+        private GlucoseData _glucoseData;
+
         public BluetoothModel bleModel
         {
             set{SetProperty(ref _bleModel, value); }
             get { return _bleModel; }
+        }
+
+        public GlucoseData glucoseDataModel
+        {
+            set { SetProperty(ref _glucoseData, value); }
+            get { return _glucoseData; }
         }
 
         public BluetoothViewModel()
@@ -202,73 +212,164 @@ namespace DiabetesOnWatch_v2
 
         private void _PackageMounted()
         {
-            List<double> packetHistory = new List<double>();
-            List<double> packetTrend = new List<double>();
+            //var packetLenght = StructConverter.Unpack(">h", dataMiaoMiao.GetRange(1, 2).ToArray())[0];
+            //string sensorId = BitConverter.ToString(dataMiaoMiao.GetRange(3, 9).ToArray());
+            bleModel.batteryDevice = dataMiaoMiao[13];
+            //var Firmeware = StructConverter.Unpack(">h", dataMiaoMiao.GetRange(14, 2).ToArray())[0];
+            //var Hardware = StructConverter.Unpack(">h", dataMiaoMiao.GetRange(16, 2).ToArray())[0];
 
-
-            var packetLenght = StructConverter.Unpack(">h", dataMiaoMiao.GetRange(1, 2).ToArray())[0];
-            string sensorId = BitConverter.ToString(dataMiaoMiao.GetRange(3, 9).ToArray());
-            bleModel.batteryMiaoMiao = dataMiaoMiao[13];
-            var Firmeware = StructConverter.Unpack(">h", dataMiaoMiao.GetRange(14, 2).ToArray())[0];
-            var Hardware = StructConverter.Unpack(">h", dataMiaoMiao.GetRange(16, 2).ToArray())[0];
+            historyList.Clear();
+            trendList.Clear();
             List<byte> payload = dataMiaoMiao.GetRange(18, 343);
-
-
-            int trendIndex = payload[26];
-            int historyIndex = payload[27];
-            int nhistory = 32;
-            int ntrend = 16;
-            var minutes = StructConverter.Unpack(">h", payload.GetRange(335, 2).ToArray())[0];
-
-
-            for (int imem = 0; imem < nhistory; imem++)
-            {
-                int ird = (historyIndex - imem - 1) % nhistory;
-                int bias = 142;
-                int low = bias + ird * 6;
-                int high = bias + (ird + 1) * 6;
-
-                byte[] entrydata = payload.GetRange(low, high - low).ToArray();
-                var entryle = StructConverter.Unpack("<HHH", entrydata);
-                foreach (var dtry in entryle)
-                {
-                    packetHistory.Add(Convert.ToInt32(dtry) / 8.5);
-                }
-            }
-
-            bleModel.glucoseLevelHistory = packetHistory.GetRange(packetHistory.Count - 3, 1).FirstOrDefault();
-
-            for (int imem = 0; imem < ntrend; imem++)
-            {
-                int ird = (trendIndex - imem - 1) % ntrend;
-                int bias = 46;
-                int low = bias + ird * 6;
-                int high = bias + (ird + 1) * 6;
-
-                byte[] entrydata = payload.GetRange(low, high - low).ToArray();
-                var entryle = StructConverter.Unpack("<HHH", entrydata);
-                foreach (var dtry in entryle)
-                {
-                    packetTrend.Add(Convert.ToInt32(dtry) / 8.5);
-                }
-            }
             
-            bleModel.glucoseLevelTrend = packetTrend.GetRange(packetTrend.Count - 3, 1).FirstOrDefault();
+
+
+            int trendIndex = payload[26] & 0xFF;
+            int historyIndex = payload[27] & 0xFF;
+            int sensorTime = 256 * (payload[317] & 0xFF) + (payload[316] & 0xFF);
+            long sensorStartTime = TimeUtils.CurrentTimeMillis() - sensorTime * 60000;
+
+            
+            // loads history values (ring buffer, starting at index_trent. byte 124-315)
+            for (int index = 0; index < 32; index++)
+            {
+                GlucoseData glucoseData = new GlucoseData();
+                int i = historyIndex - index - 1;
+                if (i < 0) i += 32;
+
+                glucoseData.glucoseLevelRaw = getGlucoseRaw(new byte[] { payload[(i * 6 + 125)], payload[(i * 6 + 124)] }, true);
+                glucoseData.flags = readBits(payload.ToArray(), i * 6 + 124, 0xe, 0xc);
+                glucoseData.temp = readBits(payload.ToArray(), i * 6 + 124, 0x1a, 0xc);
+
+                int time = Math.Max(0, Math.Abs((sensorTime - 3) / 15) * 15 - index * 15);
+                glucoseData.realDate = sensorStartTime + time * 60000;
+                glucoseData.sensorTime = time;
+
+                DateTime start = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                glucoseData.realDateTest = start.AddMilliseconds(glucoseData.realDate).ToLocalTime();
+
+                glucoseData.glucoseTest = (glucoseData.glucoseLevelRaw * (117.64705 / 1000)) * 1.05 - 30;
+                historyList.Add(glucoseData);
+
+                Console.WriteLine($"HISTORY idx: { index } | Glucose: {glucoseData.glucoseTest}  --- Time: {glucoseData.realDateTest.ToString("dd / MM / yyyy HH: mm")}");
+            }
+
+            // loads trend values (ring buffer, starting at index_trent. byte 28-123)
+            for (int index = 0; index < 16; index++)
+            {
+                GlucoseData glucoseData = new GlucoseData();
+                int i = trendIndex - index - 1;
+                if (i < 0) i += 16;
+
+                glucoseData.glucoseLevelRaw = getGlucoseRaw(new byte[] { payload[(i * 6 + 29)], payload[(i * 6 + 28)] }, true);
+                int time = Math.Max(0, sensorTime - index);
+
+                glucoseData.realDate = sensorStartTime + time * 60000;
+                glucoseData.sensorTime = time;
+
+                DateTime start = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                glucoseData.realDateTest = start.AddMilliseconds(glucoseData.realDate).ToLocalTime();
+
+                glucoseData.glucoseTest = (glucoseData.glucoseLevelRaw * (117.64 / 1000)) * 1.05 - 60; // mudei de 30 para 60
+                trendList.Add(glucoseData);
+
+                Console.WriteLine($"TREND idx: { index }  | Glucose: {glucoseData.glucoseTest}  --- Time: {glucoseData.realDateTest.ToString("dd / MM / yyyy HH: mm")}");
+            }
+
+            glucoseDataModel = trendList[0];
+
+            //CalculateSmothedData();
+
         }
 
-
-        static string Hex2Base64(string hexvalue)
+        public void CalculateSmothedData()
         {
-            if (hexvalue.Length % 2 != 0)
-                hexvalue = "0" + hexvalue;
-            int len = hexvalue.Length / 2;
-            byte[] bytes = new byte[len];
-            for (int i = 0; i < len; i++)
+            CalculateSmothedData5Points();
+            // print the values, remove before release
+            for (int i = 0; i < trendList.Count; i++)
             {
-                string byteString = hexvalue.Substring(2 * i, 2);
-                bytes[i] = Convert.ToByte(byteString, 16);
+                Console.WriteLine(" raw val " + trendList[i].glucoseLevelRaw + " smoothed " + trendList[i].glucoseLevelRawSmoothed);
             }
-            return Convert.ToBase64String(bytes);
+        }
+
+        private void CalculateSmothedData5Points()
+        {
+            // In all places in the code, there should be exactly 16 points.
+            // Since that might change, and I'm doing an average of 5, then in the case of less then 5 points,
+            // I'll only copy the data as is (to make sure there are reasonable values when the function returns).
+     
+            for (int i = 0; i < trendList.Count - 4; i++)
+            {
+                trendList[i].glucoseLevelRawSmoothed =
+                        (trendList[i].glucoseLevelRaw +
+                         trendList[i + 1].glucoseLevelRaw +
+                         trendList[i + 2].glucoseLevelRaw +
+                         trendList[i + 3].glucoseLevelRaw +
+                         trendList[i + 4].glucoseLevelRaw) / 5;
+            }
+            // We now have to calculate the last 4 points, will do our best...
+            trendList[trendList.Count - 4].glucoseLevelRawSmoothed =
+                    (trendList[trendList.Count - 4].glucoseLevelRaw +
+                     trendList[trendList.Count - 3].glucoseLevelRaw +
+                     trendList[trendList.Count - 2].glucoseLevelRaw +
+                     trendList[trendList.Count - 1].glucoseLevelRaw) / 4;
+
+            trendList[trendList.Count - 3].glucoseLevelRawSmoothed =
+                   (trendList[trendList.Count - 3].glucoseLevelRaw +
+                    trendList[trendList.Count - 2].glucoseLevelRaw +
+                    trendList[trendList.Count - 1].glucoseLevelRaw) / 3;
+
+            // Use the last two points for both last points
+            trendList[trendList.Count - 2].glucoseLevelRawSmoothed =
+                    (trendList[trendList.Count - 2].glucoseLevelRaw +
+                    trendList[trendList.Count - 1].glucoseLevelRaw) / 2;
+
+            trendList[trendList.Count - 1].glucoseLevelRawSmoothed = trendList[trendList.Count - 2].glucoseLevelRawSmoothed;
+        }
+
+        public static String bytesToHex(byte[] bytes)
+        {
+            char[] hexArray = "0123456789ABCDEF".ToCharArray();
+            if (bytes == null) return "<empty>";
+            char[] hexChars = new char[bytes.Count() * 2];
+            for (int j = 0; j < bytes.Count(); j++)
+            {
+                int v = bytes[j] & 0xFF;
+                hexChars[j * 2] = hexArray[v >> 4];
+                hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+            }
+            return new String(hexChars);
+        }
+
+        public static int readBits(byte[] buffer, int byteOffset, int bitOffset, int bitCount)
+        {
+            if (bitCount == 0)
+            {
+                return 0;
+            }
+            int res = 0;
+            for (int i = 0; i < bitCount; i++)
+            {
+                int totalBitOffset = byteOffset * 8 + bitOffset + i;
+                int byte1 = (int)(totalBitOffset / 8);
+                int bit = totalBitOffset % 8;
+                if (totalBitOffset >= 0 && ((buffer[byte1] >> bit) & 0x1) == 1)
+                {
+                    res = res | (1 << i);
+                }
+            }
+            return res;
+        }
+        private static int getGlucoseRaw(byte[] bytes, bool thirteen)
+        {
+            if (thirteen)
+            {
+                return ((256 * (bytes[0] & 0xFF) + (bytes[1] & 0xFF)) & 0x1FFF);
+            }
+            else
+            {
+                return ((256 * (bytes[0] & 0xFF) + (bytes[1] & 0xFF)) & 0x0FFF);
+            }
         }
 
         bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
