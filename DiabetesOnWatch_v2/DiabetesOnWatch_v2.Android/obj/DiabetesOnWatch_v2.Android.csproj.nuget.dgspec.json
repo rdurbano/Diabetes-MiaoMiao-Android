@@ -1,0 +1,130 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\Usuario\\Documents\\Projetos\\Pessoais\\Diabetes-MiaoMiao-Android\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2.Android\\DiabetesOnWatch_v2.Android.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\Usuario\\Documents\\Projetos\\Pessoais\\Diabetes-MiaoMiao-Android\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2.Android\\DiabetesOnWatch_v2.Android.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\Usuario\\Documents\\Projetos\\Pessoais\\Diabetes-MiaoMiao-Android\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2.Android\\DiabetesOnWatch_v2.Android.csproj",
+        "projectName": "DiabetesOnWatch_v2.Android",
+        "projectPath": "C:\\Users\\Usuario\\Documents\\Projetos\\Pessoais\\Diabetes-MiaoMiao-Android\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2.Android\\DiabetesOnWatch_v2.Android.csproj",
+        "packagesPath": "C:\\Users\\Usuario\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Usuario\\Documents\\Projetos\\Pessoais\\Diabetes-MiaoMiao-Android\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2.Android\\obj\\",
+        "projectStyle": "PackageReference",
+        "skipContentFileWrite": true,
+        "configFilePaths": [
+          "C:\\Users\\Usuario\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "monoandroid12.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "monoandroid12.0": {
+            "projectReferences": {
+              "C:\\Users\\Usuario\\Documents\\Projetos\\Pessoais\\Diabetes-MiaoMiao-Android\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2.csproj": {
+                "projectPath": "C:\\Users\\Usuario\\Documents\\Projetos\\Pessoais\\Diabetes-MiaoMiao-Android\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2.csproj"
+              }
+            }
+          }
+        }
+      },
+      "frameworks": {
+        "monoandroid12.0": {
+          "dependencies": {
+            "Plugin.BLE": {
+              "target": "Package",
+              "version": "[2.1.2, )"
+            },
+            "Xamarin.Android.Support.Compat": {
+              "target": "Package",
+              "version": "[28.0.0.3, )"
+            },
+            "Xamarin.Essentials": {
+              "target": "Package",
+              "version": "[1.7.1, )"
+            },
+            "Xamarin.Forms": {
+              "target": "Package",
+              "version": "[5.0.0.2337, )"
+            }
+          }
+        }
+      }
+    },
+    "C:\\Users\\Usuario\\Documents\\Projetos\\Pessoais\\Diabetes-MiaoMiao-Android\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\Usuario\\Documents\\Projetos\\Pessoais\\Diabetes-MiaoMiao-Android\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2.csproj",
+        "projectName": "DiabetesOnWatch_v2",
+        "projectPath": "C:\\Users\\Usuario\\Documents\\Projetos\\Pessoais\\Diabetes-MiaoMiao-Android\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2.csproj",
+        "packagesPath": "C:\\Users\\Usuario\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Usuario\\Documents\\Projetos\\Pessoais\\Diabetes-MiaoMiao-Android\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\Usuario\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "netstandard2.1"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netstandard2.1": {
+            "targetAlias": "netstandard2.1",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netstandard2.1": {
+          "targetAlias": "netstandard2.1",
+          "dependencies": {
+            "Plugin.BLE": {
+              "target": "Package",
+              "version": "[2.1.2, )"
+            },
+            "Xamarin.Essentials": {
+              "target": "Package",
+              "version": "[1.7.1, )"
+            },
+            "Xamarin.Forms": {
+              "target": "Package",
+              "version": "[5.0.0.2337, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "NETStandard.Library": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.200\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

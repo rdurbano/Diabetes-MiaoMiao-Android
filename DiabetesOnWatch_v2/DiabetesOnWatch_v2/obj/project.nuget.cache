@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "dgSpecHash": "C6AHo8vX5CIQKk9rCd0K0R7JylfjC71NqbzgZqwcCe4kSMfcD4XUxei5+KXiQsMYo9y625svi7jmfXzzFbta/w==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Usuario\\Documents\\Projetos\\Pessoais\\Diabetes-MiaoMiao-Android\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2\\DiabetesOnWatch_v2.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Usuario\\.nuget\\packages\\plugin.ble\\2.1.2\\plugin.ble.2.1.2.nupkg.sha512",
+    "C:\\Users\\Usuario\\.nuget\\packages\\system.numerics.vectors\\4.5.0\\system.numerics.vectors.4.5.0.nupkg.sha512",
+    "C:\\Users\\Usuario\\.nuget\\packages\\xamarin.essentials\\1.7.1\\xamarin.essentials.1.7.1.nupkg.sha512",
+    "C:\\Users\\Usuario\\.nuget\\packages\\xamarin.forms\\5.0.0.2337\\xamarin.forms.5.0.0.2337.nupkg.sha512"
+  ],
+  "logs": []
+}

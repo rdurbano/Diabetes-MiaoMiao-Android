@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="DiabetesOnWatch_v2.View.MainPage">
+
+    <StackLayout>
+        <Frame BackgroundColor="#2196F3" Padding="24" CornerRadius="0">
+            <Label Text="Welcome to Xamarin.Forms!" HorizontalTextAlignment="Center" TextColor="White" FontSize="36"/>
+        </Frame>
+        <Button Text="Scan" Command="{Binding StartScan}"/>
+        <Grid>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50" />
+                <RowDefinition Height="50" />
+                <RowDefinition Height="50" />
+                <RowDefinition Height="50" />
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Label Text="Status: " Grid.Row="0" Grid.Column="0" FontSize="Title" />
+            <Label Text="{Binding bleModel.bleStatus}" Grid.Row="0" Grid.Column="1" FontSize="Small" />
+            
+            <Label Text="Devices Found: " Grid.Row="1" Grid.Column="0" FontSize="Title" />
+            <Label Text="{Binding bleModel.devicesCount}" Grid.Row="1" Grid.Column="1" FontSize="Small"/>
+            
+            <Label Text="Slope: " Grid.Row="2" Grid.Column="0" FontSize="Title" />
+            <Entry x:Name="txtSlope" Text="{Binding glucoseDataModel.slope}" Grid.Row="2" Grid.Column="1" Placeholder="" Keyboard="Numeric"/>
+
+            <Label Text="Intercept: " Grid.Row="3" Grid.Column="0" FontSize="Title" />
+            <Entry x:Name="txtInterpet" Text="{Binding glucoseDataModel.intercept}" Grid.Row="3" Grid.Column="1" Placeholder="" Keyboard="Numeric"/>
+
+        </Grid>
+        <CollectionView x:Name ="clwDevices"
+                        ItemsSource="{Binding bleModel.devicesList}"
+                        HorizontalOptions="FillAndExpand"
+                        ItemsLayout="VerticalList"
+                        SelectionMode="Single"
+                        SelectedItem="{Binding bleModel.deviceConnected}"
+                        SelectionChangedCommand="{Binding ConnectDevice}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <StackLayout>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="50"/>
+                            </Grid.RowDefinitions>
+                            <Label Grid.Row="0" Grid.Column="0" HorizontalOptions="StartAndExpand" Text="RSSI:" FontSize="Small"/>
+                            <Label Grid.Row="0" Grid.Column="1" HorizontalOptions="End" Text="{Binding Rssi}" FontSize="Small"/>
+                            <Label Grid.Row="1" Grid.Column="0" HorizontalOptions="StartAndExpand" Text="Nome:" FontSize="Small" />
+                            <Label Grid.Row="1" Grid.Column="1" HorizontalOptions="End" Text="{Binding Name}" FontSize="Small"/>
+                        </Grid>
+                    </StackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </StackLayout>
+
+</ContentPage>
